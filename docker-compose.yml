@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-local-development-change-me}
+      DATABASE_URL: mysql+pymysql://buspass:buspass@db:3306/buspass
+    depends_on:
+      db: { condition: service_healthy }
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: buspass
+      MYSQL_USER: buspass
+      MYSQL_PASSWORD: buspass
+      MYSQL_ROOT_PASSWORD: local-root-password
+    volumes: ["mysql-data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  mysql-data:
